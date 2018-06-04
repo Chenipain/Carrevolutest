@@ -23,7 +23,6 @@ let recieve = (callback) => {
       console.log(err);
     else
     {
-      console.log(JSON.stringify(res, null, 2));
       callback(res);
     }
   });
