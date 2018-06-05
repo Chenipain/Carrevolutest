@@ -47,6 +47,7 @@ app.use('/game', (req, res, next) => {
 
 
 app.post('/game', (req, res) => {
+  console.log(req.body)
   res.send("OK")
 })
 
