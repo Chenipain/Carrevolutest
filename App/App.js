@@ -1,17 +1,41 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, Slider, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, Slider, FlatList} from 'react-native';
+import { List, ListItem } from "react-native-elements";
 import { createStackNavigator } from 'react-navigation';
 
 export class App extends React.Component {
+  constructor()
+  {
+    super()
+    this.state = {responseList : [{key:"0", name:"rien", sentence:"rien non plus"}], value: 0}
+    const url = 'https://safe-everglades-47426.herokuapp.com/'
+    fetch(url)
+      .then((response) => {
+        return (response.json());
+      })
+      .then((data) => {
+        for (var i = 0; i < data.length; i++)
+        {
+          data[i].key = String(i);
+        }
+        this.setState({responseList: data});
+      })
+  }
   render() {
     return (
-      <View style={styles.container}>
+      <List>
         <Button
           title="New Game"
           onPress={() => this.props.navigation.navigate('NewGame')}
         />
-
-      </View>
+        <FlatList
+           data={this.state.responseList}
+             renderItem={({item}) => (<ListItem
+               title={item.name}
+               subtitle={item.sentence}
+               onPress={() => {this.props.navigation.navigate('PrintResult', {name: item.name})}}/>)}
+  />
+      </List>
     );
   }
 }
@@ -79,10 +103,10 @@ class PrintResultScreen extends React.Component
   constructor(props)
   {
     super(props);
-    this.state = {responseList : [{key:0, name:"rien", sentence:"rien non plus"}], value: 0}
     const {navigation} = props;
     const name = navigation.getParam('name', 'null');
     const url = 'https://safe-everglades-47426.herokuapp.com/game?name=' + name
+    this.state = {responseList : [{key:"0", name:"rien", sentence:"rien non plus"}], url: url}
     fetch(url)
       .then((response) => {
         return (response.json());
@@ -90,26 +114,55 @@ class PrintResultScreen extends React.Component
       .then((data) => {
         for (var i = 0; i < data.length; i++)
         {
-          data[i].key = i;
+          data[i].key = String(i);
         }
         this.setState({responseList: data});
       })
   }
+
+  componentDidMount() {
+    this._interval = setInterval(() => {
+      fetch(this.state.url)
+        .then((response) => {
+          return (response.json());
+        })
+        .then((data) => {
+          data.sort((a, b) => {
+            if (a.turn < b.turn)
+              return -1;
+            else {
+              return 1;
+            }
+        })
+          for (var i = 0; i < data.length; i++)
+          {
+            data[i].key = String(i);
+          }
+          this.setState({responseList: data});
+        })
+    }, 5000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._interval);
+  }
+
   render() {
 
     return(
       //<View><Text>Bite {JSON.stringify(this.state.responseList)}</Text></View>
-      <FlatList
-         data={this.state.responseList}
-           ItemSeparatorComponent= {() => {return (<View style={{height:2, width:"86%", backgroundColor: "#CED0CE", marginLeft: "14%"}}/>)}}
-           renderItem={({item}) => <View style={{flexDirection:'row', marginTop:'5%', marginLeft:'4%'}}>
+      <List>
+        <FlatList
+           data={this.state.responseList}
+             renderItem={({item}) => (<ListItem
+               title={item.name}
+               subtitle={item.sentence}
+               hideChevron
+               rightTitle={String(item.turn)}
 
-           <View style={{flexDirection:"column", marginLeft:"2%"}}>
-           <Text style={{fontSize:17, fontWeight: 'bold'}}>{item.name}</Text>
-           <Text style={{fontSize:17, fontWeight: 'bold'}}>{item.sentence}</Text>
-           </View>
-           </View>}
-/>
+               />)}
+               />
+      </List>
     )
   }
 }

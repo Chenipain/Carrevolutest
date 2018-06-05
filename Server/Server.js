@@ -30,7 +30,7 @@ function playGame(req, i, end){
 
 
 app.get('/', function(req, res){
-  res.send('Hello World')
+  Turn.find({turn: 0}, (err, result) => {if (err) console.error(err); else {console.log(result);res.send(result);}});
 });
 
 app.use('/game', bodyParser.urlencoded({extended: true}));

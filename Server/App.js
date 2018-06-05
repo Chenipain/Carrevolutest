@@ -2,14 +2,16 @@ var TextToSpeechV1 = require('watson-developer-cloud/text-to-speech/v1');
 var SpeechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
 var fs = require('fs');
 
-let textToSpeech = new TextToSpeechV1({username : "75ecc4dc-8636-4cf3-8482-f590385fbfd8",
-                                        password : "TCpibjUulWiN",
-                                      url: "https://stream.watsonplatform.net/text-to-speech/api"})
+let textToSpeech = new TextToSpeechV1({
+  "url": "https://stream.watsonplatform.net/text-to-speech/api",
+  "username": "d7132de3-f80a-4553-b8c2-5024ca75657d",
+  "password": "MwAw4BbOznzF"
+})
 
-let speechToText = new SpeechToTextV1({
-  url: "https://stream.watsonplatform.net/speech-to-text/api",
-  username: "9ca30f37-beb6-4e32-8362-125de844102a",
-  password: "AyPKL5lVSZPv"
+let speechToText = new SpeechToTextV1({"url": "https://stream.watsonplatform.net/speech-to-text/api",
+  "username": "cb52c9d6-7a65-4a28-8302-c0fa652cc739",
+  "password": "zM7z7tkneYfa"
+
 })
 
 let recieve = (callback) => {
