@@ -3,9 +3,11 @@ var app = express();
 let bodyParser = require("body-parser");
 let sar = require('./App.js');
 let mongoose = require('mongoose');
+let similarityModule = require('./SimilarityCheck.js')
 
 mongoose.connect(process.env.MONGOLAB_URI, (err) => {if (err) console.error(err); else console.log("Connection to mongo OK")})
 let sendAndRecieve = sar.getSendAndRecieve();
+let similarity = similarityModule.getSimilarity();
 
 let turnSchema = mongoose.Schema({
   sentence: String,
@@ -16,16 +18,17 @@ let turnSchema = mongoose.Schema({
 
 let Turn = mongoose.model('Turn', turnSchema);
 
-function playGame(req, i, end){
+function playGame(sentence, i, end, original, req){
   if (i == end)
   {
+    console.log("done");
     return;
   }
-  sendAndRecieve(req.body.sentence, (res) => {
-    var newTurn = new Turn({sentence: res.results[0].alternatives[0].transcript, name: req.body.name, turn: i + 1, comparison:0 });
-    newTurn.save((err, newTurn) => {if (err) console.error(err); else {console.log("ok")}})
+  sendAndRecieve(sentence, (res) => {
+    var newTurn = new Turn({sentence: res.results[0].alternatives[0].transcript, name: req.body.name, turn: i + 1, comparison: similarity(res.results[0].alternatives[0].transcript, original)});
+    newTurn.save((err, newTurn) => {if (err) console.error(err); else {console.log("ok"); playGame(res.results[0].alternatives[0].transcript, i + 1, end, original, req)}})
   })
-  playGame(req, i + 1, end);
+  //playGame(req, i + 1, end, original);
 }
 
 
@@ -38,9 +41,9 @@ app.use('/game', bodyParser.json());
 app.use('/game', (req, res, next) => {
   if (req.method == "POST")
   {
-  var newTurn = new Turn({sentence: req.body.sentence, name: req.body.name, turn:0, comparison:0 });
+  var newTurn = new Turn({sentence: req.body.sentence, name: req.body.name, turn:0, comparison:1 });
   newTurn.save((err, newTurn) => {if (err) console.error(err);});
-  playGame(req, 0, req.body.turn);
+  playGame(req.body.sentence, 0, req.body.turn, req.body.sentence, req);
   }
   next();
 })

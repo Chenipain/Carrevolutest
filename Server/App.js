@@ -2,6 +2,12 @@ var TextToSpeechV1 = require('watson-developer-cloud/text-to-speech/v1');
 var SpeechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
 var fs = require('fs');
 
+const voices = ["fr-FR_ReneeVoice", "de-DE_BirgitVoice", "en-GB_KateVoice", 'en-US_AllisonVoice']
+
+let voicePicker = () => {
+  return (voices[Math.floor(Math.random() * Math.floor(voices.length))]);
+}
+
 let textToSpeech = new TextToSpeechV1({
   "url": "https://stream.watsonplatform.net/text-to-speech/api",
   "username": "d7132de3-f80a-4553-b8c2-5024ca75657d",
@@ -34,7 +40,7 @@ let sendAndRecieve = (sentence, callback) => {
 
 var textToSpeechParams = {
   text: sentence,
-  voice: 'en-US_AllisonVoice',
+  voice: voicePicker(),
   accept: 'audio/wav'
 };
 
